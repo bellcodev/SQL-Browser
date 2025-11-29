@@ -3,6 +3,12 @@
 
 ![SQLite Browser](https://i.imgur.com/1NAP2ZD.png)
 
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-PreAlfa-yellow)
+![Issues](https://img.shields.io/github/issues/bellcodev/SQL-Browser)
+![Stars](https://img.shields.io/github/stars/bellcodev/SQL-Browser?style=social)
+
 ---
 ## Description
 
