@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 import os
 import re
+import matplotlib.pyplot as plt
 
 databasename = None
 
@@ -550,14 +551,6 @@ Espero que lo disfrutes tanto como yo disfruté programarlo.
   de la base de datos el dato que introdujiste, y así con muchos
   más comandos.
 
-👨‍🎓 Información Sobre el Desarrollador:
-Hola, soy Ronald, un niño de 13 años al que le apasiona la programación.
-Este programa lo hice yo solo desde cero. Llevo un año completo estudiando
-programación. Este no es el mejor navegador que existe para SQLite, pero
-lo hice yo solo y ha sido el más grande que he hecho hasta ahora.
-Planeo seguir desarrollándolo. Esto solo es una versión Pre-Alfa, ¡espero
-que la disfrutes!
-
 🎨 Interfaz:
 La app tiene un diseño oscuro moderno, ideal para trabajar cómodamente.
 Usa botones claros, menús intuitivos y una terminal integrada para comandos.
@@ -580,11 +573,55 @@ Usa botones claros, menús intuitivos y una terminal integrada para comandos.
                         font=("Arial", 10), yscrollcommand=scroll_y.set,
                         xscrollcommand=scroll_x.set)
     texto_widget.insert("1.0", texto_ayuda)
-    texto_widget.config(state="disabled")  # Solo lectura
+    texto_widget.config(state="disabled")
     texto_widget.pack(fill="both", expand=True)
 
     scroll_y.config(command=texto_widget.yview)
     scroll_x.config(command=texto_widget.xview)
+
+def toplevelExport():
+    top = Toplevel(app)
+    top.title("Exportar Tabla")
+    top.geometry("400x200")
+    top.configure(bg="#011627")
+
+    Label(top, text="Nombre de la tabla:", bg="#011627", fg="white").pack(pady=5)
+    entryTable = Entry(top, width=30, bg="#011A2E", fg="white", insertbackground="white")
+    entryTable.pack(pady=5)
+
+    Label(top, text="Nombre del archivo:", bg="#011627", fg="white").pack(pady=5)
+    entryFile = Entry(top, width=30, bg="#011A2E", fg="white", insertbackground="white")
+    entryFile.pack(pady=5)
+
+    def export_png():
+        table_name = entryTable.get().strip()
+        filename = entryFile.get().strip()
+        if not table_name or not filename:
+            messagebox.showerror("Error", "Debes ingresar tabla y nombre de archivo")
+            return
+        export_to_png(table_name, filename + ".png")
+
+    Button(top, text="Exportar a PNG", command=export_png, bg="#002341", fg="white").pack(pady=10)
+
+def export_to_png(table_name, output_file):
+    conn = sql.connect(databasename)
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT * FROM "{table_name}"')
+    rows = cursor.fetchall()
+    headers = [desc[0] for desc in cursor.description]
+    conn.close()
+
+    fig, ax = plt.subplots()
+    ax.axis("off")
+
+    table = ax.table(cellText=rows, colLabels=headers, loc="center")
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1.2, 1.2)
+
+    plt.savefig(output_file, bbox_inches="tight")
+    cmdText.delete(0.0, END)
+    cmdText.insert(0.0, f"Tabla '{table_name}' exportada como imagen en {output_file}")
 
 app = Tk()
 app.title('SQLite Browser - Pre-Alfa')
@@ -624,6 +661,7 @@ menu_base.add_command(label='Open Database', command=openBase)
 menu_functions = Menu(menu, tearoff=0, background="#01213B", foreground="#ffffff")
 menu.add_cascade(label='Functions', menu=menu_functions)
 menu_functions.add_command(label='Search Data', command=appSearch)
+menu_functions.add_command(label='Export to PNG', command=toplevelExport)
 
 menu_view = Menu(menu, tearoff=0, background="#01213B", foreground="#ffffff")
 menu.add_cascade(label='View', menu=menu_view)
